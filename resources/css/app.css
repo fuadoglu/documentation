@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --color-brand: #0f766e;
+        --color-brand-rgb: 15, 118, 110;
+        --color-brand-dark: #0b132b;
+        --color-brand-dark-rgb: 11, 19, 43;
+        --color-brand-soft: rgba(15, 118, 110, 0.12);
+        --color-brand-soft-border: rgba(15, 118, 110, 0.32);
+        --color-brand-soft-text: rgba(15, 118, 110, 0.92);
+        --color-brand-ring: rgba(15, 118, 110, 0.25);
+        --color-ink: #0f172a;
+        --surface-soft: #f8fafc;
+        --surface-card: #ffffff;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+    }
+
+    html,
+    body {
+        min-height: 100%;
+    }
+
+    body {
+        font-family: 'Manrope', sans-serif;
+        background-color: var(--surface-soft);
+        color: var(--color-ink);
+        -webkit-tap-highlight-color: rgba(var(--color-brand-rgb), 0.24);
+    }
+
+    @supports (height: 100dvh) {
+        .min-h-screen {
+            min-height: 100dvh;
+        }
+    }
+
+    @supports (-webkit-touch-callout: none) {
+        .min-h-screen {
+            min-height: -webkit-fill-available;
+        }
+    }
+}
+
+@layer components {
+    .app-card {
+        @apply rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5;
+    }
+
+    .app-input {
+        @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-sm;
+    }
+
+    .app-input:focus {
+        border-color: var(--color-brand);
+        box-shadow: 0 0 0 1px var(--color-brand);
+    }
+
+    .app-label {
+        @apply mb-1 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-600;
+    }
+
+    .app-button-primary,
+    .app-button-secondary,
+    .app-button-danger,
+    .app-button-dark {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold leading-none transition active:scale-[0.99] disabled:opacity-60;
+        -webkit-appearance: none;
+        appearance: none;
+        font: inherit;
+        vertical-align: middle;
+    }
+
+    .app-button-primary {
+        @apply text-white;
+        background-color: var(--color-brand);
+    }
+
+    .app-button-primary:hover {
+        background-color: var(--color-brand-dark);
+    }
+
+    .app-button-secondary {
+        @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-100;
+    }
+
+    .app-button-danger {
+        @apply border border-rose-300 bg-white text-rose-700 hover:bg-rose-50;
+    }
+
+    .app-button-dark {
+        @apply bg-slate-800 text-slate-100 hover:bg-slate-700;
+    }
+
+    .app-button-primary svg,
+    .app-button-secondary svg,
+    .app-button-danger svg,
+    .app-button-dark svg {
+        @apply h-5 w-5 shrink-0;
+    }
+
+    .app-button-primary span,
+    .app-button-secondary span,
+    .app-button-danger span,
+    .app-button-dark span {
+        @apply inline-flex items-center leading-none;
+    }
+
+    .app-button-compact {
+        @apply min-h-10 gap-1.5 px-2 text-[12px] sm:min-h-11 sm:gap-2 sm:px-4 sm:text-sm;
+    }
+
+    .app-button-compact svg {
+        @apply h-4 w-4 sm:h-5 sm:w-5;
+    }
+
+    .app-nav {
+        @apply flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-900 hover:text-white;
+    }
+
+    .app-nav-active {
+        @apply text-white;
+        background-color: var(--color-brand);
+    }
+
+    .app-nav-active:hover {
+        background-color: var(--color-brand);
+    }
+
+    .tab-link {
+        @apply inline-flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-[11px] font-semibold leading-tight text-slate-500;
+    }
+
+    .tab-link-active {
+        @apply text-white;
+        background-color: var(--color-brand-dark);
+    }
+
+    .tab-link span {
+        @apply text-center;
+    }
+
+    .app-action-group {
+        @apply flex flex-col gap-2 sm:flex-row sm:flex-wrap;
+    }
+
+    .lang-dropdown-trigger {
+        @apply inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 leading-none transition hover:bg-slate-100;
+    }
+
+    .lang-dropdown-panel {
+        @apply absolute right-0 z-30 mt-1 min-w-[190px] rounded-xl border border-slate-200 bg-white p-1 shadow-xl;
+    }
+
+    .lang-dropdown-item {
+        @apply inline-flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 leading-none transition hover:bg-slate-100;
+    }
+
+    .lang-dropdown-item-active {
+        color: var(--color-brand-soft-text);
+        background-color: var(--color-brand-soft);
+    }
+
+    .quick-access-card {
+        @apply relative overflow-hidden rounded-2xl p-4 shadow-sm sm:p-5;
+        border: 1px solid var(--color-brand-soft-border);
+        background: linear-gradient(
+            140deg,
+            rgba(var(--color-brand-rgb), 0.12) 0%,
+            rgba(var(--color-brand-rgb), 0.06) 52%,
+            rgba(var(--color-brand-dark-rgb), 0.14) 100%
+        );
+    }
+
+    .quick-access-orb {
+        @apply pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl;
+        background-color: rgba(var(--color-brand-rgb), 0.36);
+    }
+
+    .quick-access-icon-wrap {
+        @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm ring-1;
+        color: var(--color-brand-soft-text);
+        --tw-ring-color: var(--color-brand-soft-border);
+    }
+
+    .quick-access-cta {
+        @apply inline-flex min-h-11 w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition active:scale-[0.99];
+        background-color: rgb(var(--color-brand-dark-rgb));
+    }
+
+    .quick-access-cta:hover {
+        background-color: rgba(var(--color-brand-dark-rgb), 0.9);
+    }
+
+    .app-glass {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+
+    .app-shell-mobile {
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    .app-safe-top {
+        padding-top: var(--safe-top);
+    }
+
+    .app-safe-bottom {
+        padding-bottom: calc(0.5rem + var(--safe-bottom));
+        padding-left: var(--safe-left);
+        padding-right: var(--safe-right);
+    }
+
+    .app-main-mobile-safe {
+        padding-bottom: calc(7rem + var(--safe-bottom));
+    }
+
+    .app-guest-safe {
+        padding-top: calc(2rem + var(--safe-top));
+        padding-bottom: calc(2rem + var(--safe-bottom));
+        padding-left: max(1rem, var(--safe-left));
+        padding-right: max(1rem, var(--safe-right));
+    }
+
+    @media (min-width: 768px) {
+        .app-main-mobile-safe {
+            padding-bottom: 1.5rem;
+        }
+    }
+
+    .quick-access-disabled {
+        @apply inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-500;
+    }
+
+    .version-dropzone {
+        @apply flex min-h-[132px] cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-center transition;
+    }
+
+    .version-dropzone:hover {
+        border-color: var(--color-brand);
+        background-color: var(--color-brand-soft);
+    }
+
+    .version-dropzone-active {
+        border-color: var(--color-brand);
+        background-color: var(--color-brand-soft);
+        box-shadow: 0 0 0 2px var(--color-brand-ring);
+    }
+
+    .app-pagination-link {
+        @apply inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100;
+    }
+
+    .app-pagination-link-disabled {
+        @apply cursor-not-allowed opacity-50 hover:bg-white;
+    }
+
+    .app-pagination-link-active {
+        @apply border-transparent text-white;
+        background-color: var(--color-brand);
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}

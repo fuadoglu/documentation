@@ -1,0 +1,59 @@
+@php
+    $currentLocale = app()->getLocale();
+    $supportedLocales = config('app.available_locales', ['az', 'en']);
+    if ($supportedLocales === []) {
+        $supportedLocales = ['az', 'en'];
+    }
+
+    $locales = collect($supportedLocales)->map(function (string $locale): array {
+        $labelKey = 'ui.common.language_'.$locale;
+        $label = __($labelKey);
+
+        if ($label === $labelKey) {
+            $label = strtoupper($locale);
+        }
+
+        return [
+            'code' => $locale,
+            'label' => $label,
+            'icon' => in_array($locale, ['az', 'en'], true) ? 'flag-'.$locale : null,
+        ];
+    })->values()->all();
+
+    $current = collect($locales)->firstWhere('code', $currentLocale) ?? $locales[0];
+@endphp
+
+<div x-data="{ open: false }" class="relative" @click.outside="open = false" @keydown.escape.window="open = false">
+    <button
+        type="button"
+        class="lang-dropdown-trigger px-2.5 sm:px-3"
+        @click="open = !open"
+        :aria-expanded="open.toString()"
+        aria-haspopup="true"
+        aria-label="{{ __('ui.common.language') }}"
+    >
+        @if ($current['icon'])
+            <x-icon :name="$current['icon']" class="h-5 w-5 shrink-0 rounded-sm" />
+        @endif
+        <span class="hidden truncate sm:inline">{{ $current['label'] }}</span>
+        <x-icon name="chevron-down" class="hidden h-5 w-5 shrink-0 transition sm:inline-flex" x-bind:class="{ 'rotate-180': open }" />
+    </button>
+
+    <div x-cloak x-show="open" x-transition.origin.top.right class="lang-dropdown-panel">
+        @foreach ($locales as $locale)
+            <form method="POST" action="{{ route('locale.update') }}">
+                @csrf
+                <input type="hidden" name="locale" value="{{ $locale['code'] }}">
+                <button
+                    type="submit"
+                    class="lang-dropdown-item {{ $currentLocale === $locale['code'] ? 'lang-dropdown-item-active' : '' }}"
+                >
+                    @if ($locale['icon'])
+                        <x-icon :name="$locale['icon']" class="h-5 w-5 shrink-0 rounded-sm" />
+                    @endif
+                    <span>{{ $locale['label'] }}</span>
+                </button>
+            </form>
+        @endforeach
+    </div>
+</div>

@@ -1,0 +1,11 @@
+{
+  "name": "ECO DC",
+  "short_name": "ECO DC",
+  "description": "Daxili sənəd dövriyyəsi platforması",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f766e",
+  "lang": "az",
+  "icons": []
+}
