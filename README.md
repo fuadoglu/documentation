@@ -10,6 +10,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Security Headers](https://img.shields.io/badge/Security-Headers-0ea5a4)](#tehlukesizlik-standartlari)
 [![Shared Hosting Ready](https://img.shields.io/badge/Deploy-Shared%20Hosting-22c55e)](./DEPLOY_SHARED_HOSTING.md)
+[![Railway Ready](https://img.shields.io/badge/Deploy-Railway-7B61FF?logo=railway&logoColor=white)](./DEPLOY_RAILWAY.md)
 [![Locale](https://img.shields.io/badge/Locale-AZ%20%7C%20EN-0f766e)](#coxdillilik-i18n)
 
 </div>
@@ -27,6 +28,7 @@
 - [Admin Panel Modulları](#admin-panel-modullari)
 - [Təhlükəsizlik Standartları](#tehlukesizlik-standartlari)
 - [Test və Keyfiyyət](#test-ve-keyfiyyet)
+- [Railway Deploy](#railway-deploy)
 - [Shared Hosting Deploy](#shared-hosting-deploy)
 - [Çoxdillilik (i18n)](#coxdillilik-i18n)
 - [Layihə Strukturunun Qısa Xəritəsi](#layihe-strukturunun-qisa-xeritesi)
@@ -229,6 +231,16 @@ npm run build
 composer audit
 npm audit --omit=dev --audit-level=high
 ```
+
+## Railway Deploy
+Railway üçün Docker əsaslı yayımlama hazırdır:
+- [DEPLOY_RAILWAY.md](./DEPLOY_RAILWAY.md)
+
+Bu axında:
+- `Dockerfile` ilə build
+- Vite asset build (`public/build/manifest.json`)
+- Runtime migrate/cache əməliyyatları
+- `$PORT` üzərindən start
 
 ## Shared Hosting Deploy
 Shared hosting üçün tam təlimat:
