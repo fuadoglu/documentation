@@ -241,6 +241,7 @@ Bu axında:
 - Vite asset build (`public/build/manifest.json`)
 - Runtime migrate/cache əməliyyatları
 - `$PORT` üzərindən start
+- Persistent volume dəstəyi (`LARAVEL_STORAGE_PATH=/data/storage`)
 
 ## Shared Hosting Deploy
 Shared hosting üçün tam təlimat:

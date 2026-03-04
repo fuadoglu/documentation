@@ -51,6 +51,7 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 FILESYSTEM_DISK=local
+LARAVEL_STORAGE_PATH=/data/storage
 
 ALLOWED_LOGIN_DOMAIN=company.az
 ADMIN_EMAIL=admin@company.az
@@ -65,26 +66,39 @@ php artisan key:generate --show
 
 çıxan dəyəri Railway `APP_KEY` kimi əlavə edin.
 
-## 5) Deploy zamanı nə olur
+## 5) Persistent volume (mütləq tövsiyə olunur)
+
+Sənəd əlavələri və branding faylları itirilməsin deyə Railway service-ə volume qoşun:
+
+1. Service daxilində `Volumes` bölməsinə keçin.
+2. Yeni volume yaradın və mount path olaraq `/data` təyin edin.
+3. Env-də `LARAVEL_STORAGE_PATH=/data/storage` saxlayın.
+
+Bu halda storage faylları redeploy/restart zamanı qalacaq.
+
+## 6) Deploy zamanı nə olur
 
 `scripts/railway-entrypoint.sh` bunları icra edir:
 
 1. `php artisan optimize:clear`
 2. `php artisan storage:link`
-3. `php artisan migrate --force`
-4. `php artisan config:cache`
-5. `php artisan route:cache`
-6. `php artisan view:cache`
-7. `php artisan serve --host=0.0.0.0 --port=$PORT`
+3. DB hazır olmayanda migrate retry (`MIGRATE_MAX_ATTEMPTS`, `MIGRATE_RETRY_SLEEP_SECONDS`)
+4. `php artisan migrate --force`
+5. Opsional seed (`RUN_DB_SEED=true` olduqda)
+6. `php artisan config:cache`
+7. `php artisan route:cache`
+8. `php artisan view:cache`
+9. `php artisan serve --host=0.0.0.0 --port=$PORT`
 
-## 6) İlk deploydan sonra yoxlama
+## 7) İlk deploydan sonra yoxlama
 
 1. `GET /up` - healthcheck `200` qaytarmalıdır.
 2. `GET /login` açılmalıdır.
 3. Admin hesabı ilə login yoxlanmalıdır.
 4. `public/build/manifest.json` error-u olmamalıdır.
+5. Fayl upload edib service restart sonrası faylın qaldığını yoxlayın.
 
-## 7) Tez-tez rastlanan problemlər
+## 8) Tez-tez rastlanan problemlər
 
 ### Vite manifest not found
 Səbəb: frontend build edilməyib.  
@@ -97,3 +111,7 @@ Həll: `php artisan key:generate --show` ilə dəyər yaradıb env-ə əlavə ed
 ### 500 / DB connection
 Səbəb: MySQL env-ləri düzgün map edilməyib.  
 Həll: `DB_*` dəyişənlərini Railway MySQL service dəyərlərinə bağlayın.
+
+### Fayllar restartdan sonra itir
+Səbəb: persistent volume qoşulmayıb və ya `LARAVEL_STORAGE_PATH` təyin edilməyib.  
+Həll: `/data` mount edin və `LARAVEL_STORAGE_PATH=/data/storage` əlavə edin.

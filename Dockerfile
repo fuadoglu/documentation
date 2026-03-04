@@ -35,6 +35,7 @@ RUN apk add --no-cache \
         libzip \
         oniguruma \
         sqlite-libs \
+        su-exec \
     && apk add --no-cache --virtual .build-deps \
         icu-dev \
         libzip-dev \
@@ -61,8 +62,6 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
 
 COPY scripts/railway-entrypoint.sh /usr/local/bin/railway-entrypoint
 RUN chmod +x /usr/local/bin/railway-entrypoint
-
-USER www-data
 
 EXPOSE 8080
 
