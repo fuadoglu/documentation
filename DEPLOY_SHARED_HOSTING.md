@@ -85,7 +85,7 @@ php artisan db:seed --force
 
 ```bash
 php artisan config:cache
-php artisan route:cache
+php artisan route:clear
 php artisan view:cache
 ```
 
@@ -94,7 +94,7 @@ Deploy sonrası yeniləmədə:
 ```bash
 php artisan optimize:clear
 php artisan config:cache
-php artisan route:cache
+php artisan route:clear
 php artisan view:cache
 ```
 

@@ -296,7 +296,7 @@ npm run build
 
 # Config və route cache (production)
 php artisan config:cache
-php artisan route:cache
+php artisan route:clear
 php artisan view:cache
 ```
 

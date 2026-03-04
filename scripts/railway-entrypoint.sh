@@ -48,7 +48,14 @@ if [ "${RUN_DB_SEED:-false}" = "true" ]; then
 fi
 
 php artisan config:cache
-php artisan route:cache
+if [ "${ENABLE_ROUTE_CACHE:-false}" = "true" ]; then
+    if ! php artisan route:cache; then
+        echo "route:cache failed. Likely because of closure routes (e.g. /up). Falling back to route:clear."
+        php artisan route:clear || true
+    fi
+else
+    php artisan route:clear || true
+fi
 php artisan view:cache
 
 exec su-exec www-data php -d variables_order=EGPCS artisan serve --host=0.0.0.0 --port="${PORT:-8080}"

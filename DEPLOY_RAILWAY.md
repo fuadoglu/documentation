@@ -86,9 +86,13 @@ Bu halda storage faylları redeploy/restart zamanı qalacaq.
 4. `php artisan migrate --force`
 5. Opsional seed (`RUN_DB_SEED=true` olduqda)
 6. `php artisan config:cache`
-7. `php artisan route:cache`
+7. `php artisan route:clear` (default)
 8. `php artisan view:cache`
 9. `php artisan serve --host=0.0.0.0 --port=$PORT`
+
+Qeyd:
+- Bu layihədə `health: /up` closure route istifadə etdiyi üçün `route:cache` bəzi hallarda fail verə bilər.
+- İstəsəniz `ENABLE_ROUTE_CACHE=true` ilə aktiv edə bilərsiniz; fail olarsa script avtomatik `route:clear`-a düşür.
 
 ## 7) İlk deploydan sonra yoxlama
 
