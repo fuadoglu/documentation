@@ -13,16 +13,23 @@ $width = match ($width) {
 };
 @endphp
 
-<div class="relative" x-data="{ open: false }" @click.away="open = false" @close.stop="open = false">
-    <div @click="open = ! open">
+<div
+    class="relative"
+    x-data="{ open: false }"
+    @click.away="open = false"
+    @click.outside="open = false"
+    @focusin.window="!$el.contains($event.target) && (open = false)"
+    @close.stop="open = false"
+>
+    <div @click.stop="open = ! open">
         {{ $trigger }}
     </div>
 
     <div
             x-cloak
-            :class="open ? 'block' : 'hidden'"
+            x-show="open"
             class="absolute z-50 mt-2 {{ $width }} rounded-md shadow-lg {{ $alignmentClasses }}"
-            @click="open = false">
+            @click.stop>
         <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
             {{ $content }}
         </div>

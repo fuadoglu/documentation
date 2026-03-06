@@ -30,11 +30,18 @@
         : 'lang-dropdown-trigger px-2.5 sm:px-3';
 @endphp
 
-<div x-data="{ open: false }" class="relative" @click.away="open = false" @keydown.escape.window="open = false">
+<div
+    x-data="{ open: false, close() { this.open = false } }"
+    class="relative"
+    @click.away="close()"
+    @click.outside="close()"
+    @focusin.window="!$el.contains($event.target) && close()"
+    @keydown.escape.window="close()"
+>
     <button
         type="button"
         class="{{ $triggerClass }}"
-        @click="open = !open"
+        @click.stop="open = !open"
         :aria-expanded="open.toString()"
         aria-haspopup="true"
         aria-label="{{ __('ui.common.language') }}"
@@ -46,14 +53,14 @@
         <x-icon name="chevron-down" class="hidden h-5 w-5 shrink-0 transition sm:inline-flex" x-bind:class="{ 'rotate-180': open }" />
     </button>
 
-    <div x-cloak :class="open ? 'block' : 'hidden'" class="lang-dropdown-panel">
+    <div x-cloak x-show="open" @click.stop class="lang-dropdown-panel">
         @foreach ($locales as $locale)
-            <form method="POST" action="{{ route('locale.update') }}">
+            <form method="POST" action="{{ route('locale.update') }}" @submit="close()">
                 @csrf
                 <input type="hidden" name="locale" value="{{ $locale['code'] }}">
                 <button
                     type="submit"
-                    @click="open = false"
+                    @click="close()"
                     class="lang-dropdown-item {{ $currentLocale === $locale['code'] ? 'lang-dropdown-item-active' : '' }}"
                 >
                     @if ($locale['icon'])
