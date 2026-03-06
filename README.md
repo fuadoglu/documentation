@@ -240,6 +240,7 @@ Bu axında:
 - `Dockerfile` ilə build
 - Vite asset build (`public/build/manifest.json`)
 - Runtime migrate/cache əməliyyatları
+- `APP_KEY` boş olduqda runtime auto-generate + persist (`LARAVEL_STORAGE_PATH`)
 - `$PORT` üzərindən start
 - Persistent volume dəstəyi (`LARAVEL_STORAGE_PATH=/data/storage`)
 - Railway startup sabitliyi üçün `RUN_MIGRATIONS_ON_BOOT=false` tövsiyəsi

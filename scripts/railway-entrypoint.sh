@@ -6,13 +6,9 @@ cd "$APP_DIR"
 
 echo "[entrypoint] Boot started."
 
-if [ -z "${APP_KEY:-}" ]; then
-    echo "APP_KEY is not set. Configure APP_KEY in Railway variables."
-    exit 1
-fi
-
 STORAGE_PATH="${LARAVEL_STORAGE_PATH:-$APP_DIR/storage}"
 RUN_MIGRATIONS_ON_BOOT="${RUN_MIGRATIONS_ON_BOOT:-false}"
+RUNTIME_KEY_FILE="$STORAGE_PATH/framework/runtime_app_key"
 
 mkdir -p "$STORAGE_PATH/framework/cache"
 mkdir -p "$STORAGE_PATH/framework/sessions"
@@ -23,6 +19,26 @@ mkdir -p "$APP_DIR/bootstrap/cache"
 
 chown -R www-data:www-data "$STORAGE_PATH" "$APP_DIR/bootstrap/cache" || true
 chmod -R ug+rwx "$STORAGE_PATH" "$APP_DIR/bootstrap/cache" || true
+
+if [ -z "${APP_KEY:-}" ]; then
+    if [ -s "$RUNTIME_KEY_FILE" ]; then
+        APP_KEY="$(cat "$RUNTIME_KEY_FILE")"
+        export APP_KEY
+        echo "[entrypoint] APP_KEY loaded from $RUNTIME_KEY_FILE."
+    else
+        APP_KEY="$(php -r 'echo "base64:".base64_encode(random_bytes(32));')"
+        export APP_KEY
+        printf '%s' "$APP_KEY" > "$RUNTIME_KEY_FILE"
+        chmod 600 "$RUNTIME_KEY_FILE" || true
+        echo "[entrypoint] APP_KEY auto-generated and stored at $RUNTIME_KEY_FILE."
+    fi
+else
+    if [ ! -s "$RUNTIME_KEY_FILE" ]; then
+        printf '%s' "$APP_KEY" > "$RUNTIME_KEY_FILE"
+        chmod 600 "$RUNTIME_KEY_FILE" || true
+        echo "[entrypoint] APP_KEY from environment persisted to $RUNTIME_KEY_FILE."
+    fi
+fi
 
 php artisan optimize:clear || true
 php artisan storage:link || true
