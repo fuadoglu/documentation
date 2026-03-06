@@ -75,7 +75,7 @@ class LoginTest extends TestCase
         ]);
 
         $this->assertAuthenticatedAs($user);
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect(route('dashboard'));
         $this->assertNotNull($user->fresh()->last_login_at);
     }
 
@@ -92,7 +92,7 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
         $response->assertSessionHasErrors('email');
         $this->assertGuest();
     }
@@ -110,7 +110,7 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
         $response->assertSessionHasErrors('email');
         $this->assertGuest();
     }

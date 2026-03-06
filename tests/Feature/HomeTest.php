@@ -11,6 +11,6 @@ class HomeTest extends TestCase
 
     public function test_root_redirects_to_dashboard(): void
     {
-        $this->get('/')->assertRedirect('/dashboard');
+        $this->get('/')->assertRedirect(route('dashboard'));
     }
 }

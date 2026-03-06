@@ -20,7 +20,7 @@ if ((bool) config('install.enabled', true) && is_file($installRoutes)) {
     require $installRoutes;
 }
 
-Route::redirect('/', '/dashboard');
+Route::get('/', fn () => redirect()->route('dashboard'));
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 Route::get('/branding/logo', [BrandingAssetController::class, 'logo'])->name('branding.logo');
 Route::get('/branding/favicon', [BrandingAssetController::class, 'favicon'])->name('branding.favicon');

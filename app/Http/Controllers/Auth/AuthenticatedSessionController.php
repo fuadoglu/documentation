@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('profile.edit')->with('status', __('messages.auth.must_change_password'));
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('dashboard'));
     }
 
     /**

@@ -14,7 +14,7 @@ class SetupWizardTest extends TestCase
     {
         $this->enableInstallerChecks();
 
-        $this->get('/')->assertRedirect('/install');
+        $this->get('/')->assertRedirect(route('install.index'));
         $this->get('/install')
             ->assertOk()
             ->assertSeeText(__('ui.setup.title'));
@@ -24,7 +24,7 @@ class SetupWizardTest extends TestCase
     {
         $this->enableInstallerChecks();
 
-        $this->get('/install/install')->assertRedirect('/install');
+        $this->get('/install/install')->assertRedirect(route('install.index'));
     }
 
     public function test_installed_app_blocks_setup_route(): void

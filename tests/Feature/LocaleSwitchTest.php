@@ -16,7 +16,7 @@ class LocaleSwitchTest extends TestCase
             'locale' => 'en',
         ]);
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('login'));
         $response->assertSessionHas('locale', 'en');
 
         $this->withSession(['locale' => 'en'])
@@ -36,7 +36,7 @@ class LocaleSwitchTest extends TestCase
                 'locale' => 'en',
             ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect(route('dashboard'));
         $response->assertSessionHas('locale', 'en');
 
         $this->assertSame('en', $user->fresh()->locale);

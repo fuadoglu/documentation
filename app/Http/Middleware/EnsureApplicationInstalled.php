@@ -37,7 +37,7 @@ class EnsureApplicationInstalled
         }
 
         if ($installerEnabled) {
-            return redirect('/install');
+            return redirect()->route('install.index');
         }
 
         return response(__('ui.setup.installer_disabled'), 503);
