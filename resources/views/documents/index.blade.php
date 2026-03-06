@@ -97,14 +97,14 @@
                     @php
                         $canManageDocument = auth()->user()->hasRole('admin') || $document->created_by === auth()->id();
                     @endphp
-                    <div class="{{ $canManageDocument ? 'grid w-full grid-cols-3 gap-1.5' : 'grid w-full grid-cols-1 gap-2' }} sm:flex sm:w-auto sm:justify-end sm:gap-2">
-                        <a href="{{ route('documents.show', $document) }}" class="app-button-secondary app-button-compact min-w-0 w-full"><x-icon name="open" /><span class="min-w-0 truncate whitespace-nowrap">{{ __('ui.common.open') }}</span></a>
+                    <div class="{{ $canManageDocument ? 'doc-actions-grid' : 'w-full sm:w-auto' }}">
+                        <a href="{{ route('documents.show', $document) }}" class="app-button-secondary doc-action-btn min-w-0"><x-icon name="open" /><span>{{ __('ui.common.open') }}</span></a>
                         @if ($canManageDocument)
-                            <a href="{{ route('documents.edit', $document) }}" class="app-button-secondary app-button-compact min-w-0 w-full"><x-icon name="edit" /><span class="min-w-0 truncate whitespace-nowrap">{{ __('ui.documents.edit') }}</span></a>
+                            <a href="{{ route('documents.edit', $document) }}" class="app-button-secondary doc-action-btn min-w-0"><x-icon name="edit" /><span>{{ __('ui.documents.edit') }}</span></a>
                             <form method="POST" action="{{ route('documents.destroy', $document) }}" data-confirm="{{ __('ui.documents.confirm_delete') }}" class="min-w-0 w-full sm:w-auto">
                                 @csrf
                                 @method('DELETE')
-                                <button class="app-button-danger app-button-compact min-w-0 w-full"><x-icon name="delete" /><span class="min-w-0 truncate whitespace-nowrap">{{ __('ui.common.delete') }}</span></button>
+                                <button class="app-button-danger doc-action-btn min-w-0"><x-icon name="delete" /><span>{{ __('ui.common.delete') }}</span></button>
                             </form>
                         @endif
                     </div>

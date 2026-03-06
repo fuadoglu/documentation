@@ -24,6 +24,8 @@
     html,
     body {
         min-height: 100%;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
     }
 
     body {
@@ -107,7 +109,7 @@
     .app-button-secondary span,
     .app-button-danger span,
     .app-button-dark span {
-        @apply inline-flex items-center leading-none;
+        @apply inline-flex items-center leading-tight;
     }
 
     .app-button-compact {
@@ -116,6 +118,44 @@
 
     .app-button-compact svg {
         @apply h-4 w-4 sm:h-5 sm:w-5;
+    }
+
+    .doc-actions-grid {
+        @apply grid w-full grid-cols-3 gap-1.5 sm:flex sm:w-auto sm:justify-end sm:gap-2;
+    }
+
+    .doc-action-btn {
+        @apply inline-flex min-h-10 w-full items-center justify-center gap-1 overflow-hidden px-1.5 py-1 text-[11px] leading-tight;
+        white-space: normal !important;
+    }
+
+    .doc-action-btn svg {
+        display: none;
+    }
+
+    .doc-action-btn span {
+        @apply block w-full min-w-0 text-center text-[11px] leading-tight;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    @media (min-width: 640px) {
+        .doc-action-btn {
+            @apply min-h-11 w-auto gap-2 px-4 py-2.5 text-sm leading-none;
+            white-space: nowrap !important;
+        }
+
+        .doc-action-btn svg {
+            @apply block h-5 w-5 shrink-0;
+        }
+
+        .doc-action-btn span {
+            @apply w-auto text-sm leading-none;
+            white-space: nowrap !important;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
     }
 
     .app-nav {
@@ -150,6 +190,10 @@
 
     .lang-dropdown-trigger {
         @apply inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 leading-none transition hover:bg-slate-100;
+    }
+
+    .lang-dropdown-trigger-transparent {
+        @apply border-slate-500/70 bg-transparent text-slate-100 hover:bg-white/10;
     }
 
     .lang-dropdown-panel {

@@ -1,3 +1,7 @@
+@props([
+    'transparent' => false,
+])
+
 @php
     $currentLocale = app()->getLocale();
     $supportedLocales = config('app.available_locales', ['az', 'en']);
@@ -21,12 +25,15 @@
     })->values()->all();
 
     $current = collect($locales)->firstWhere('code', $currentLocale) ?? $locales[0];
+    $triggerClass = $transparent
+        ? 'lang-dropdown-trigger lang-dropdown-trigger-transparent px-2.5 sm:px-3'
+        : 'lang-dropdown-trigger px-2.5 sm:px-3';
 @endphp
 
 <div x-data="{ open: false }" class="relative" @click.outside="open = false" @keydown.escape.window="open = false">
     <button
         type="button"
-        class="lang-dropdown-trigger px-2.5 sm:px-3"
+        class="{{ $triggerClass }}"
         @click="open = !open"
         :aria-expanded="open.toString()"
         aria-haspopup="true"

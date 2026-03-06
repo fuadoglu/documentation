@@ -58,7 +58,7 @@
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(13,148,136,0.3),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.22),transparent_50%)]"></div>
 
             <div class="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
-                <x-locale-dropdown />
+                <x-locale-dropdown transparent />
             </div>
 
             <div class="app-glass relative z-10 w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900/90 p-5 shadow-2xl sm:p-6">
