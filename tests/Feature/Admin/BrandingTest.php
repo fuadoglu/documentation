@@ -223,7 +223,11 @@ class BrandingTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('<meta name="theme-color" content="#123456">', false);
-        $response->assertSee('--color-brand: #123456;', false);
-        $response->assertSee('--color-brand-dark: #654321;', false);
+        $response->assertSee(route('branding.theme'), false);
+
+        $themeResponse = $this->actingAs($user)->get(route('branding.theme'));
+        $themeResponse->assertOk();
+        $themeResponse->assertSee('--color-brand: #123456;', false);
+        $themeResponse->assertSee('--color-brand-dark: #654321;', false);
     }
 }

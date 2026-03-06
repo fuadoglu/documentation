@@ -49,9 +49,7 @@ class SecureHeaders
     private function contentSecurityPolicy(): string
     {
         $scriptSrc = ["'self'"];
-        // UI uses dynamic inline styles (brand CSS variables) and Alpine x-show toggles.
-        // Without unsafe-inline in style-src, production UI can break.
-        $styleSrc = ["'self'", "'unsafe-inline'", 'https://fonts.bunny.net'];
+        $styleSrc = ["'self'", 'https://fonts.bunny.net'];
         $fontSrc = ["'self'", 'https://fonts.bunny.net', 'data:'];
         $imgSrc = ["'self'", 'data:', 'blob:'];
         $connectSrc = ["'self'"];

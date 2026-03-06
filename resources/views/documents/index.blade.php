@@ -7,7 +7,16 @@
         $hasActiveFilters = collect($filters ?? [])->contains(fn ($value) => filled($value));
     @endphp
 
-    <section class="app-card" x-data="{ filtersOpen: {{ $hasActiveFilters ? 'true' : 'false' }} }">
+    <section
+        class="app-card"
+        x-data="{
+            filtersOpen: {{ $hasActiveFilters ? 'true' : 'false' }},
+            labels: {
+                show: @js(__('ui.common.show_filters')),
+                hide: @js(__('ui.common.hide_filters')),
+            },
+        }"
+    >
         <div class="mb-3 md:hidden">
             <button
                 type="button"
@@ -16,8 +25,7 @@
                 :aria-expanded="filtersOpen.toString()"
                 aria-controls="documents-filters"
             >
-                <span x-show="!filtersOpen">{{ __('ui.common.show_filters') }}</span>
-                <span x-show="filtersOpen" x-cloak>{{ __('ui.common.hide_filters') }}</span>
+                <span x-text="filtersOpen ? labels.hide : labels.show"></span>
                 <x-icon name="chevron-down" class="h-5 w-5 transition" x-bind:class="filtersOpen ? 'rotate-180' : ''" />
             </button>
         </div>

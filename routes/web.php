@@ -18,6 +18,7 @@ Route::redirect('/', '/dashboard');
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 Route::get('/branding/logo', [BrandingAssetController::class, 'logo'])->name('branding.logo');
 Route::get('/branding/favicon', [BrandingAssetController::class, 'favicon'])->name('branding.favicon');
+Route::get('/branding/theme.css', [BrandingAssetController::class, 'theme'])->name('branding.theme');
 
 Route::middleware(['auth', 'active', 'no-store'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');

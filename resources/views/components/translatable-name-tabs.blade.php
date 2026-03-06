@@ -51,7 +51,7 @@
                 $localeLabel = strtoupper($locale);
             }
         @endphp
-        <div x-show="tab === '{{ $locale }}'" x-cloak>
+        <div x-cloak :class="tab === '{{ $locale }}' ? 'block' : 'hidden'">
             <input
                 name="{{ $name }}[{{ $locale }}]"
                 value="{{ $values[$locale] ?? '' }}"

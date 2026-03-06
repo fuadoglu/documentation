@@ -46,7 +46,7 @@
         <x-icon name="chevron-down" class="hidden h-5 w-5 shrink-0 transition sm:inline-flex" x-bind:class="{ 'rotate-180': open }" />
     </button>
 
-    <div x-cloak x-show="open" x-transition.origin.top.right class="lang-dropdown-panel">
+    <div x-cloak :class="open ? 'block' : 'hidden'" class="lang-dropdown-panel">
         @foreach ($locales as $locale)
             <form method="POST" action="{{ route('locale.update') }}">
                 @csrf

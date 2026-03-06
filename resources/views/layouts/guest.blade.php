@@ -6,26 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @php
             $brandPrimary = $branding?->primary_color ?: '#0F766E';
-            $brandSecondary = $branding?->secondary_color ?: '#0B132B';
             $companyDisplayName = $branding?->company_name ?: (config('app.name') ?: __('ui.brand.platform'));
-            $hexToRgb = static function (string $hex): string {
-                $normalized = ltrim(trim($hex), '#');
-                if (strlen($normalized) === 3) {
-                    $normalized = preg_replace('/(.)/', '$1$1', $normalized) ?? '0f766e';
-                }
-
-                if (strlen($normalized) !== 6 || ! ctype_xdigit($normalized)) {
-                    $normalized = '0f766e';
-                }
-
-                $r = hexdec(substr($normalized, 0, 2));
-                $g = hexdec(substr($normalized, 2, 2));
-                $b = hexdec(substr($normalized, 4, 2));
-
-                return $r.', '.$g.', '.$b;
-            };
-            $brandPrimaryRgb = $hexToRgb($brandPrimary);
-            $brandSecondaryRgb = $hexToRgb($brandSecondary);
+            $themeCssVersion = $branding?->updated_at?->timestamp ?? 1;
         @endphp
         <meta name="theme-color" content="{{ $brandPrimary }}">
         <link rel="manifest" href="/manifest.webmanifest">
@@ -38,19 +20,7 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&display=swap" rel="stylesheet" />
-        <style>
-            :root {
-                --color-brand: {{ $brandPrimary }};
-                --color-brand-rgb: {{ $brandPrimaryRgb }};
-                --color-brand-dark: {{ $brandSecondary }};
-                --color-brand-dark-rgb: {{ $brandSecondaryRgb }};
-                --color-brand-soft: rgba({{ $brandPrimaryRgb }}, 0.12);
-                --color-brand-soft-border: rgba({{ $brandPrimaryRgb }}, 0.32);
-                --color-brand-soft-text: rgba({{ $brandPrimaryRgb }}, 0.92);
-                --color-brand-ring: rgba({{ $brandPrimaryRgb }}, 0.25);
-            }
-        </style>
-
+        <link rel="stylesheet" href="{{ route('branding.theme', ['v' => $themeCssVersion]) }}">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen overflow-x-hidden bg-slate-950 text-slate-100">
