@@ -12,6 +12,7 @@ use App\Http\Controllers\DocumentAttachmentController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -19,6 +20,61 @@ Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update
 Route::get('/branding/logo', [BrandingAssetController::class, 'logo'])->name('branding.logo');
 Route::get('/branding/favicon', [BrandingAssetController::class, 'favicon'])->name('branding.favicon');
 Route::get('/branding/theme.css', [BrandingAssetController::class, 'theme'])->name('branding.theme');
+
+Route::get('/build/{path}', function (string $path) {
+    $decodedPath = urldecode($path);
+
+    if (str_contains($decodedPath, '..')) {
+        abort(404);
+    }
+
+    $buildRoot = realpath(public_path('build'));
+    if ($buildRoot === false) {
+        abort(404);
+    }
+
+    $targetPath = realpath($buildRoot.DIRECTORY_SEPARATOR.$decodedPath);
+    if ($targetPath === false || ! is_file($targetPath)) {
+        abort(404);
+    }
+
+    if (! str_starts_with($targetPath, $buildRoot.DIRECTORY_SEPARATOR)) {
+        abort(404);
+    }
+
+    $extension = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+    $mimeType = match ($extension) {
+        'css' => 'text/css; charset=UTF-8',
+        'js', 'mjs' => 'application/javascript; charset=UTF-8',
+        'json', 'map' => 'application/json; charset=UTF-8',
+        'svg' => 'image/svg+xml',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'eot' => 'application/vnd.ms-fontobject',
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'avif' => 'image/avif',
+        default => File::mimeType($targetPath) ?: 'application/octet-stream',
+    };
+
+    return response()->stream(function () use ($targetPath): void {
+        $stream = fopen($targetPath, 'rb');
+        if ($stream === false) {
+            abort(404);
+        }
+
+        fpassthru($stream);
+        fclose($stream);
+    }, 200, [
+        'Content-Type' => $mimeType,
+        'Content-Length' => (string) filesize($targetPath),
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+})->where('path', '.*')->name('build.asset');
 
 Route::middleware(['auth', 'active', 'no-store'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
