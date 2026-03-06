@@ -75,7 +75,11 @@ class SetupWizardController extends Controller
                 // If logger backend itself fails on shared hosting, keep returning a clean validation error.
             }
 
-            $message = app()->environment('local')
+            $showRealInstallErrors = app()->environment('local')
+                || (bool) config('app.debug', false)
+                || (bool) config('install.show_exceptions', false);
+
+            $message = $showRealInstallErrors
                 ? $exception->getMessage()
                 : (string) __('ui.setup.install_failed');
 
