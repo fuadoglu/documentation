@@ -68,6 +68,7 @@ class LoginTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
         $response->assertRedirect('/dashboard');
+        $this->assertNotNull($user->fresh()->last_login_at);
     }
 
     public function test_user_with_disallowed_domain_cannot_login(): void
