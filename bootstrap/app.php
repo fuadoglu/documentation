@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureActiveUser;
+use App\Http\Middleware\EnsureApplicationInstalled;
 use App\Http\Middleware\PreventSensitiveResponseCaching;
 use App\Http\Middleware\SecureHeaders;
 use App\Http\Middleware\SetCompanyTimezone;
@@ -24,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             at: '*',
             headers: Request::HEADER_X_FORWARDED_TRAEFIK
         );
+
+        $middleware->web(prepend: [
+            EnsureApplicationInstalled::class,
+        ]);
 
         $middleware->web(append: [
             SetCompanyTimezone::class,

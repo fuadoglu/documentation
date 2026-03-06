@@ -1,0 +1,63 @@
+name: Quality
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test-build-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, bcmath, pdo, pdo_sqlite, pdo_mysql, fileinfo, ctype, openssl, tokenizer, xml
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Prepare app
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+          touch database/database.sqlite
+          php artisan migrate --force
+
+      - name: Run test suite
+        run: php artisan test --colors=never
+
+      - name: Run smoke checks
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8080 > /tmp/laravel-serve.log 2>&1 &
+          for i in {1..30}; do
+            if curl -sSf http://127.0.0.1:8080/up >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          ./scripts/smoke_test.sh http://127.0.0.1:8080
+        env:
+          SESSION_DRIVER: file
+          CACHE_STORE: file
+          QUEUE_CONNECTION: sync
+

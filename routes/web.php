@@ -15,6 +15,11 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
+$installRoutes = __DIR__.'/install.php';
+if ((bool) config('install.enabled', true) && is_file($installRoutes)) {
+    require $installRoutes;
+}
+
 Route::redirect('/', '/dashboard');
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 Route::get('/branding/logo', [BrandingAssetController::class, 'logo'])->name('branding.logo');

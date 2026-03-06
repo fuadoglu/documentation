@@ -37,7 +37,6 @@ composer install --no-dev --optimize-autoloader
 npm ci
 npm run build
 cp .env.example .env
-php artisan key:generate
 ```
 
 Alternativ: avtomatlaşdırılmış deploy script:
@@ -45,6 +44,18 @@ Alternativ: avtomatlaşdırılmış deploy script:
 ```bash
 ./scripts/deploy_shared.sh
 ```
+
+Sonra brauzerdə `https://your-domain.az/install` açın və Setup Wizard ilə:
+
+- APP_URL / domen
+- MySQL bağlantısı
+- ilkin admin hesabı
+- login domeni
+
+daxil edib quraşdırmanı tamamlayın.
+
+Qeyd: Setup bitəndən sonra wizard avtomatik deaktiv edilir (self-destruct aktivdirsə route/controller/view silinir).
+Əlavə fallback: `INSTALLER_ENABLED=false` yazıldığı üçün fayllar silinməsə belə installer route-ları bağlanır.
 
 ## 4. `.env` Production Nümunəsi
 
@@ -72,9 +83,15 @@ FILESYSTEM_DISK=local
 ALLOWED_LOGIN_DOMAIN=company.az
 ADMIN_EMAIL=admin@company.az
 ADMIN_PASSWORD=StrongAdminPassword123!
+INSTALLER_ENABLED=true
+INSTALLER_SELF_DESTRUCT=true
 ```
 
 ## 5. DB və Seed
+
+Əgər wizard istifadə olunursa bu addım avtomatik icra edilir.
+
+Manual deploy üçün:
 
 ```bash
 php artisan migrate --force

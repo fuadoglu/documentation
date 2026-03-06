@@ -81,5 +81,6 @@ return [
 
         'branding_updated' => 'Brendinq ayarları yeniləndi',
         'employee_permissions_updated' => 'İşçi rolunun icazələri yeniləndi',
+        'setup_completed' => 'İlkin quraşdırma tamamlandı',
     ],
 ];

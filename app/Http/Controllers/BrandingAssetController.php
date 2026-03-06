@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BrandingSetting;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -11,7 +12,8 @@ class BrandingAssetController extends Controller
 {
     public function logo(): StreamedResponse
     {
-        $path = BrandingSetting::current()->logo_path;
+        $settings = $this->resolveSettings();
+        $path = $settings?->logo_path;
 
         abort_if(blank($path), 404, __('messages.error.file_not_found'));
         abort_unless(Storage::disk('public')->exists($path), 404, __('messages.error.file_not_found'));
@@ -21,7 +23,8 @@ class BrandingAssetController extends Controller
 
     public function favicon(): StreamedResponse
     {
-        $path = BrandingSetting::current()->favicon_path;
+        $settings = $this->resolveSettings();
+        $path = $settings?->favicon_path;
 
         abort_if(blank($path), 404, __('messages.error.file_not_found'));
         abort_unless(Storage::disk('public')->exists($path), 404, __('messages.error.file_not_found'));
@@ -31,10 +34,10 @@ class BrandingAssetController extends Controller
 
     public function theme(): Response
     {
-        $settings = BrandingSetting::current();
+        $settings = $this->resolveSettings();
 
-        $primary = $this->normalizeHex((string) ($settings->primary_color ?: '#0F766E'), '0f766e');
-        $secondary = $this->normalizeHex((string) ($settings->secondary_color ?: '#0B132B'), '0b132b');
+        $primary = $this->normalizeHex((string) ($settings?->primary_color ?: '#0F766E'), '0f766e');
+        $secondary = $this->normalizeHex((string) ($settings?->secondary_color ?: '#0B132B'), '0b132b');
 
         $primaryRgb = $this->hexToRgb($primary);
         $secondaryRgb = $this->hexToRgb($secondary);
@@ -58,6 +61,19 @@ class BrandingAssetController extends Controller
             'Cache-Control' => 'public, max-age=300',
             'X-Content-Type-Options' => 'nosniff',
         ]);
+    }
+
+    private function resolveSettings(): ?BrandingSetting
+    {
+        try {
+            if (! Schema::hasTable('branding_settings')) {
+                return null;
+            }
+
+            return BrandingSetting::current();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function normalizeHex(string $hex, string $fallback): string

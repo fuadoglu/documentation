@@ -81,5 +81,6 @@ return [
 
         'branding_updated' => 'Branding settings updated',
         'employee_permissions_updated' => 'Employee role permissions updated',
+        'setup_completed' => 'Initial setup completed',
     ],
 ];

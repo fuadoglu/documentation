@@ -25,6 +25,7 @@
 - [Sürətli Lokal Qurulum](#surətli-lokal-qurulum)
 - [Lokal Serverin Başladılması](#lokal-serverin-basladilmasi)
 - [Konfiqurasiya (.env)](#konfiqurasiya-env)
+- [Setup Wizard (İlk Açılış)](#setup-wizard-ilk-acilis)
 - [Admin Panel Modulları](#admin-panel-modullari)
 - [Təhlükəsizlik Standartları](#tehlukesizlik-standartlari)
 - [Test və Keyfiyyət](#test-ve-keyfiyyet)
@@ -43,6 +44,7 @@ Sistem modeli:
 - Tək domain üzərindən giriş
 - Login yalnız aktiv istifadəçilər üçün
 - Self-register və "şifrəni unutdum" funksiyası yoxdur
+- İlk açılış üçün setup wizard (`/install`) dəstəyi
 
 ## Əsas Xüsusiyyətlər
 - `Login` və aktiv user yoxlanışı (`is_active`)
@@ -191,11 +193,37 @@ SESSION_SAME_SITE=strict
 ALLOWED_LOGIN_DOMAIN=company.az
 ADMIN_EMAIL=admin@company.az
 ADMIN_PASSWORD=ChangeMeStrongPassword123!
+
+INSTALLER_ENABLED=true
+INSTALLER_SELF_DESTRUCT=true
 ```
 
 Tövsiyə:
 - Production mühitdə `APP_DEBUG=false` saxlayın.
 - `ADMIN_PASSWORD` ilk deploydan sonra dərhal dəyişdirin.
+- Əgər subpath deploy edirsinizsə (`/doc`), setup wizard `SESSION_PATH` və `ASSET_URL`-i URL-ə görə avtomatik uyğunlaşdırır.
+
+## Setup Wizard (İlk Açılış)
+Shared hosting üçün ilk açılış axını:
+
+1. `composer install` və `npm run build` edin.
+2. `cp .env.example .env` edin.
+3. Brauzerdə `/install` açın.
+4. Wizard ilə:
+   - APP məlumatları
+   - MySQL bağlantısı
+   - şirkət/login domeni
+   - ilkin admin hesabı
+   daxil edin.
+
+Wizard tamamlandıqda:
+- `.env` yazılır və `APP_KEY` təmin olunur
+- DB bağlantısı test edilir
+- `migrate + seed` işləyir
+- admin hesabı yaradılır
+- `installed.lock` yazılır
+- `INSTALLER_ENABLED=false` edilir (fallback disable)
+- `INSTALLER_SELF_DESTRUCT=true` olduqda installer faylları silinir
 
 ## Admin Panel Modulları
 - **Users:** yarat, yenilə, aktiv/deaktiv et, şifrə reset et
@@ -211,6 +239,7 @@ Layihədə tətbiq edilən əsas tədbirlər:
 - Aktiv user məcburiyyəti (`is_active`)
 - Login domain məhdudiyyəti (`allowed_login_domain`)
 - Login rate limit
+- Quraşdırmadan sonra installer route-ları deaktiv olunur (`INSTALLER_ENABLED=false`)
 - File upload validation + ölçü/format məhdudiyyəti
 - SVG fayllar üçün təhlükəli tag/attribute bloklaması
 - Fayl yükləmədə `sha256` integrity yoxlaması (download zamanı)
@@ -231,6 +260,14 @@ npm run build
 composer audit
 npm audit --omit=dev --audit-level=high
 ```
+
+CI pipeline:
+- GitHub Actions workflow: `.github/workflows/quality.yml`
+- Push/PR zamanı avtomatik:
+  - `composer install`
+  - `npm ci && npm run build`
+  - `php artisan test`
+  - smoke test (`scripts/smoke_test.sh`)
 
 ## Railway Deploy
 Railway üçün Docker əsaslı yayımlama hazırdır:
