@@ -53,6 +53,7 @@ QUEUE_CONNECTION=database
 FILESYSTEM_DISK=local
 LARAVEL_STORAGE_PATH=/data/storage
 RUN_MIGRATIONS_ON_BOOT=false
+AUTO_MIGRATE_ON_EMPTY_DB=true
 
 ALLOWED_LOGIN_DOMAIN=company.az
 ADMIN_EMAIL=admin@company.az
@@ -87,19 +88,20 @@ Bu halda storage faylları (o cümlədən auto-generated `APP_KEY`) redeploy/res
 1. `php artisan optimize:clear`
 2. `php artisan storage:link`
 3. `APP_KEY` boşdursa auto-generate və storage altında persist
-4. DB hazır olmayanda migrate retry (`MIGRATE_MAX_ATTEMPTS`, `MIGRATE_RETRY_SLEEP_SECONDS`)
-5. `RUN_MIGRATIONS_ON_BOOT=true` olduqda `php artisan migrate --force`
-6. Opsional seed (`RUN_DB_SEED=true` olduqda)
-7. `php artisan config:cache`
-8. `php artisan route:clear` (default)
-9. `php artisan view:cache`
-10. `php artisan serve --host=0.0.0.0 --port=$PORT`
+4. Migrate metadata yoxdursa ilkin `php artisan migrate --force` (default: `AUTO_MIGRATE_ON_EMPTY_DB=true`)
+5. DB hazır olmayanda migrate retry (`MIGRATE_MAX_ATTEMPTS`, `MIGRATE_RETRY_SLEEP_SECONDS`)
+6. `RUN_MIGRATIONS_ON_BOOT=true` olduqda hər deployda `php artisan migrate --force`
+7. Opsional seed (`RUN_DB_SEED=true` olduqda)
+8. `php artisan config:cache`
+9. `php artisan route:clear` (default)
+10. `php artisan view:cache`
+11. `php artisan serve --host=0.0.0.0 --port=$PORT`
 
 Qeyd:
 - Bu layihədə `health: /up` closure route istifadə etdiyi üçün `route:cache` bəzi hallarda fail verə bilər.
 - İstəsəniz `ENABLE_ROUTE_CACHE=true` ilə aktiv edə bilərsiniz; fail olarsa script avtomatik `route:clear`-a düşür.
 - Railway-də stabil startup üçün default tövsiyə: `RUN_MIGRATIONS_ON_BOOT=false`
-- Migrate-i manual bir dəfə `Railway Shell` daxilində işlədin: `php artisan migrate --force`
+- İlkin boş DB üçün manual migrate lazım deyil (`AUTO_MIGRATE_ON_EMPTY_DB=true` olduqda avtomatik işləyir).
 
 ## 7) İlk deploydan sonra yoxlama
 
@@ -122,6 +124,12 @@ Həll: Son commit-i deploy edin. Bu versiyada `APP_KEY` boş olsa belə script o
 ### 500 / DB connection
 Səbəb: MySQL env-ləri düzgün map edilməyib.  
 Həll: `DB_*` dəyişənlərini Railway MySQL service dəyərlərinə bağlayın.
+
+### `/` route 500 (ilk deploydan sonra)
+Səbəb: DB boşdur, migrate işləməyib, amma `SESSION_DRIVER=database` və `CACHE_STORE=database` aktivdir.  
+Həll:
+1. `AUTO_MIGRATE_ON_EMPTY_DB=true` saxlayın və redeploy edin; və ya
+2. Railway Shell-də manual işlədin: `php artisan migrate --force`
 
 ### Fayllar restartdan sonra itir
 Səbəb: persistent volume qoşulmayıb və ya `LARAVEL_STORAGE_PATH` təyin edilməyib.  

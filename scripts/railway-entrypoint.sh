@@ -8,6 +8,7 @@ echo "[entrypoint] Boot started."
 
 STORAGE_PATH="${LARAVEL_STORAGE_PATH:-$APP_DIR/storage}"
 RUN_MIGRATIONS_ON_BOOT="${RUN_MIGRATIONS_ON_BOOT:-false}"
+AUTO_MIGRATE_ON_EMPTY_DB="${AUTO_MIGRATE_ON_EMPTY_DB:-true}"
 RUNTIME_KEY_FILE="$STORAGE_PATH/framework/runtime_app_key"
 
 mkdir -p "$STORAGE_PATH/framework/cache"
@@ -43,7 +44,23 @@ fi
 php artisan optimize:clear || true
 php artisan storage:link || true
 
+should_run_migrations=false
+
 if [ "$RUN_MIGRATIONS_ON_BOOT" = "true" ]; then
+    should_run_migrations=true
+    echo "RUN_MIGRATIONS_ON_BOOT=true, running migrations."
+elif [ "$AUTO_MIGRATE_ON_EMPTY_DB" = "true" ]; then
+    if php artisan migrate:status >/dev/null 2>&1; then
+        echo "RUN_MIGRATIONS_ON_BOOT=false and migration metadata exists, skipping migrations."
+    else
+        should_run_migrations=true
+        echo "Migration metadata is missing or DB is not initialized yet; running initial migrations."
+    fi
+else
+    echo "RUN_MIGRATIONS_ON_BOOT=false and AUTO_MIGRATE_ON_EMPTY_DB=false, skipping migrations."
+fi
+
+if [ "$should_run_migrations" = "true" ]; then
     if [ "${DB_CONNECTION:-}" = "mysql" ]; then
         missing_mysql_var=false
         unresolved_ref_var=false
@@ -92,8 +109,6 @@ if [ "$RUN_MIGRATIONS_ON_BOOT" = "true" ]; then
         attempt=$((attempt + 1))
         sleep "$retry_sleep"
     done
-else
-    echo "RUN_MIGRATIONS_ON_BOOT=false, skipping migrations (recommended for Railway startup stability)."
 fi
 
 if [ "${RUN_DB_SEED:-false}" = "true" ]; then
