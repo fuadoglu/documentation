@@ -30,7 +30,7 @@
         : 'lang-dropdown-trigger px-2.5 sm:px-3';
 @endphp
 
-<div x-data="{ open: false }" class="relative" @click.outside="open = false" @keydown.escape.window="open = false">
+<div x-data="{ open: false }" class="relative" @click.away="open = false" @keydown.escape.window="open = false">
     <button
         type="button"
         class="{{ $triggerClass }}"
@@ -53,6 +53,7 @@
                 <input type="hidden" name="locale" value="{{ $locale['code'] }}">
                 <button
                     type="submit"
+                    @click="open = false"
                     class="lang-dropdown-item {{ $currentLocale === $locale['code'] ? 'lang-dropdown-item-active' : '' }}"
                 >
                     @if ($locale['icon'])
