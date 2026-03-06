@@ -93,6 +93,7 @@ Bu halda storage faylları redeploy/restart zamanı qalacaq.
 Qeyd:
 - Bu layihədə `health: /up` closure route istifadə etdiyi üçün `route:cache` bəzi hallarda fail verə bilər.
 - İstəsəniz `ENABLE_ROUTE_CACHE=true` ilə aktiv edə bilərsiniz; fail olarsa script avtomatik `route:clear`-a düşür.
+- Lazım olarsa startup migrate-i müvəqqəti söndürə bilərsiniz: `RUN_MIGRATIONS_ON_BOOT=false`
 
 ## 7) İlk deploydan sonra yoxlama
 
