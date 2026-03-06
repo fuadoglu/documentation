@@ -1,8 +1,10 @@
 #!/usr/bin/env sh
-set -eu
+set -u
 
 APP_DIR="/var/www/html"
 cd "$APP_DIR"
+
+echo "[entrypoint] Boot started."
 
 if [ -z "${APP_KEY:-}" ]; then
     echo "APP_KEY is not set. Configure APP_KEY in Railway variables."
@@ -79,10 +81,10 @@ else
 fi
 
 if [ "${RUN_DB_SEED:-false}" = "true" ]; then
-    php artisan db:seed --force
+    php artisan db:seed --force || echo "[entrypoint] db:seed failed, continuing startup."
 fi
 
-php artisan config:cache
+php artisan config:cache || echo "[entrypoint] config:cache failed, continuing startup."
 if [ "${ENABLE_ROUTE_CACHE:-false}" = "true" ]; then
     if ! php artisan route:cache; then
         echo "route:cache failed. Likely because of closure routes (e.g. /up). Falling back to route:clear."
@@ -91,6 +93,7 @@ if [ "${ENABLE_ROUTE_CACHE:-false}" = "true" ]; then
 else
     php artisan route:clear || true
 fi
-php artisan view:cache
+php artisan view:cache || echo "[entrypoint] view:cache failed, continuing startup."
 
-exec su-exec www-data php -d variables_order=EGPCS artisan serve --host=0.0.0.0 --port="${PORT:-8080}"
+echo "[entrypoint] Starting web server on port ${PORT:-8080}."
+exec php -d variables_order=EGPCS artisan serve --host=0.0.0.0 --port="${PORT:-8080}"
