@@ -6,6 +6,7 @@ use App\Models\BrandingSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -17,6 +18,13 @@ class LoginTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
+    }
+
+    public function test_login_screen_can_render_when_branding_table_is_missing(): void
+    {
+        Schema::dropIfExists('branding_settings');
+
+        $this->get('/login')->assertOk();
     }
 
     public function test_login_screen_shows_company_name_when_logo_is_missing(): void

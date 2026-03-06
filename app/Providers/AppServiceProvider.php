@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         }
 
         View::composer('*', function ($view): void {
+            // Always provide the variable so guest/layout views don't fail before migrations.
+            $view->with('branding', null);
+
             try {
                 if (! Schema::hasTable('branding_settings')) {
                     return;
