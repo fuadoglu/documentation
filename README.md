@@ -242,6 +242,7 @@ Bu axında:
 - Runtime migrate/cache əməliyyatları
 - `$PORT` üzərindən start
 - Persistent volume dəstəyi (`LARAVEL_STORAGE_PATH=/data/storage`)
+- Railway startup sabitliyi üçün `RUN_MIGRATIONS_ON_BOOT=false` tövsiyəsi
 
 ## Shared Hosting Deploy
 Shared hosting üçün tam təlimat:

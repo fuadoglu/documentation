@@ -52,6 +52,7 @@ CACHE_STORE=database
 QUEUE_CONNECTION=database
 FILESYSTEM_DISK=local
 LARAVEL_STORAGE_PATH=/data/storage
+RUN_MIGRATIONS_ON_BOOT=false
 
 ALLOWED_LOGIN_DOMAIN=company.az
 ADMIN_EMAIL=admin@company.az
@@ -83,7 +84,7 @@ Bu halda storage faylları redeploy/restart zamanı qalacaq.
 1. `php artisan optimize:clear`
 2. `php artisan storage:link`
 3. DB hazır olmayanda migrate retry (`MIGRATE_MAX_ATTEMPTS`, `MIGRATE_RETRY_SLEEP_SECONDS`)
-4. `php artisan migrate --force`
+4. `RUN_MIGRATIONS_ON_BOOT=true` olduqda `php artisan migrate --force`
 5. Opsional seed (`RUN_DB_SEED=true` olduqda)
 6. `php artisan config:cache`
 7. `php artisan route:clear` (default)
@@ -93,7 +94,8 @@ Bu halda storage faylları redeploy/restart zamanı qalacaq.
 Qeyd:
 - Bu layihədə `health: /up` closure route istifadə etdiyi üçün `route:cache` bəzi hallarda fail verə bilər.
 - İstəsəniz `ENABLE_ROUTE_CACHE=true` ilə aktiv edə bilərsiniz; fail olarsa script avtomatik `route:clear`-a düşür.
-- Lazım olarsa startup migrate-i müvəqqəti söndürə bilərsiniz: `RUN_MIGRATIONS_ON_BOOT=false`
+- Railway-də stabil startup üçün default tövsiyə: `RUN_MIGRATIONS_ON_BOOT=false`
+- Migrate-i manual bir dəfə `Railway Shell` daxilində işlədin: `php artisan migrate --force`
 
 ## 7) İlk deploydan sonra yoxlama
 

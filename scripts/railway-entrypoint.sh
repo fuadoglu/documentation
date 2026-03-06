@@ -10,7 +10,7 @@ if [ -z "${APP_KEY:-}" ]; then
 fi
 
 STORAGE_PATH="${LARAVEL_STORAGE_PATH:-$APP_DIR/storage}"
-RUN_MIGRATIONS_ON_BOOT="${RUN_MIGRATIONS_ON_BOOT:-true}"
+RUN_MIGRATIONS_ON_BOOT="${RUN_MIGRATIONS_ON_BOOT:-false}"
 
 mkdir -p "$STORAGE_PATH/framework/cache"
 mkdir -p "$STORAGE_PATH/framework/sessions"
@@ -28,15 +28,30 @@ php artisan storage:link || true
 if [ "$RUN_MIGRATIONS_ON_BOOT" = "true" ]; then
     if [ "${DB_CONNECTION:-}" = "mysql" ]; then
         missing_mysql_var=false
+        unresolved_ref_var=false
         for var_name in DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD; do
-            if [ -z "$(printenv "$var_name" || true)" ]; then
+            var_value="$(printenv "$var_name" || true)"
+
+            if [ -z "$var_value" ]; then
                 echo "$var_name is not set for DB_CONNECTION=mysql"
                 missing_mysql_var=true
             fi
+
+            case "$var_value" in
+                *'${{'*)
+                    echo "$var_name still contains an unresolved Railway reference: $var_value"
+                    unresolved_ref_var=true
+                    ;;
+            esac
         done
 
         if [ "$missing_mysql_var" = "true" ]; then
             echo "MySQL variables are incomplete. Set DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD and redeploy."
+            exit 1
+        fi
+
+        if [ "$unresolved_ref_var" = "true" ]; then
+            echo "Database references were not resolved. Re-add DB vars using Railway Variable References UI."
             exit 1
         fi
     fi
@@ -60,7 +75,7 @@ if [ "$RUN_MIGRATIONS_ON_BOOT" = "true" ]; then
         sleep "$retry_sleep"
     done
 else
-    echo "RUN_MIGRATIONS_ON_BOOT=false, skipping migrations."
+    echo "RUN_MIGRATIONS_ON_BOOT=false, skipping migrations (recommended for Railway startup stability)."
 fi
 
 if [ "${RUN_DB_SEED:-false}" = "true" ]; then
