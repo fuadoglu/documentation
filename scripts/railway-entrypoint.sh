@@ -10,6 +10,8 @@ STORAGE_PATH="${LARAVEL_STORAGE_PATH:-$APP_DIR/storage}"
 RUN_MIGRATIONS_ON_BOOT="${RUN_MIGRATIONS_ON_BOOT:-false}"
 AUTO_MIGRATE_ON_EMPTY_DB="${AUTO_MIGRATE_ON_EMPTY_DB:-true}"
 RUNTIME_KEY_FILE="$STORAGE_PATH/framework/runtime_app_key"
+APP_ENVIRONMENT="${APP_ENV:-production}"
+DB_CONNECTION_EFFECTIVE="${DB_CONNECTION:-sqlite}"
 
 mkdir -p "$STORAGE_PATH/framework/cache"
 mkdir -p "$STORAGE_PATH/framework/sessions"
@@ -41,6 +43,58 @@ else
     fi
 fi
 
+echo "[entrypoint] DB_CONNECTION=$DB_CONNECTION_EFFECTIVE"
+
+if [ "$DB_CONNECTION_EFFECTIVE" = "mysql" ]; then
+    missing_mysql_var=false
+    unresolved_ref_var=false
+
+    for var_name in DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD; do
+        var_value="$(printenv "$var_name" || true)"
+
+        if [ -z "$var_value" ]; then
+            echo "$var_name is not set for DB_CONNECTION=mysql"
+            missing_mysql_var=true
+        fi
+
+        case "$var_value" in
+            *'${{'*)
+                echo "$var_name still contains an unresolved Railway reference: $var_value"
+                unresolved_ref_var=true
+                ;;
+        esac
+    done
+
+    if [ "$missing_mysql_var" = "true" ]; then
+        echo "MySQL variables are incomplete. Set DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD and redeploy."
+        exit 1
+    fi
+
+    if [ "$unresolved_ref_var" = "true" ]; then
+        echo "Database references were not resolved. Re-add DB vars using Railway Variable References UI."
+        exit 1
+    fi
+elif [ "$DB_CONNECTION_EFFECTIVE" = "sqlite" ]; then
+    SQLITE_DATABASE_PATH="${DB_DATABASE:-$APP_DIR/database/database.sqlite}"
+    case "$SQLITE_DATABASE_PATH" in
+        :memory:)
+            ;;
+        *)
+            if [ ! -f "$SQLITE_DATABASE_PATH" ]; then
+                if [ "$APP_ENVIRONMENT" = "production" ] && [ "${ALLOW_SQLITE_IN_PRODUCTION:-false}" != "true" ]; then
+                    echo "DB_CONNECTION=sqlite in production and database file is missing at $SQLITE_DATABASE_PATH."
+                    echo "Configure MySQL variables, or explicitly allow SQLite with ALLOW_SQLITE_IN_PRODUCTION=true."
+                    exit 1
+                fi
+
+                mkdir -p "$(dirname "$SQLITE_DATABASE_PATH")"
+                touch "$SQLITE_DATABASE_PATH"
+                echo "[entrypoint] Created sqlite database file at $SQLITE_DATABASE_PATH."
+            fi
+            ;;
+    esac
+fi
+
 php artisan optimize:clear || true
 php artisan storage:link || true
 
@@ -61,36 +115,6 @@ else
 fi
 
 if [ "$should_run_migrations" = "true" ]; then
-    if [ "${DB_CONNECTION:-}" = "mysql" ]; then
-        missing_mysql_var=false
-        unresolved_ref_var=false
-        for var_name in DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD; do
-            var_value="$(printenv "$var_name" || true)"
-
-            if [ -z "$var_value" ]; then
-                echo "$var_name is not set for DB_CONNECTION=mysql"
-                missing_mysql_var=true
-            fi
-
-            case "$var_value" in
-                *'${{'*)
-                    echo "$var_name still contains an unresolved Railway reference: $var_value"
-                    unresolved_ref_var=true
-                    ;;
-            esac
-        done
-
-        if [ "$missing_mysql_var" = "true" ]; then
-            echo "MySQL variables are incomplete. Set DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD and redeploy."
-            exit 1
-        fi
-
-        if [ "$unresolved_ref_var" = "true" ]; then
-            echo "Database references were not resolved. Re-add DB vars using Railway Variable References UI."
-            exit 1
-        fi
-    fi
-
     attempt=1
     max_attempts="${MIGRATE_MAX_ATTEMPTS:-60}"
     retry_sleep="${MIGRATE_RETRY_SLEEP_SECONDS:-3}"
