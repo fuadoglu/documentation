@@ -20,6 +20,13 @@ class SetupWizardTest extends TestCase
             ->assertSeeText(__('ui.setup.title'));
     }
 
+    public function test_install_double_path_redirects_to_single_install_path(): void
+    {
+        $this->enableInstallerChecks();
+
+        $this->get('/install/install')->assertRedirect('/install');
+    }
+
     public function test_installed_app_blocks_setup_route(): void
     {
         $this->enableInstallerChecks();

@@ -30,11 +30,16 @@ class SetupWizardController extends Controller
         $defaultDomain = $normalizedHost !== '' && str_contains($normalizedHost, '.')
             ? $normalizedHost
             : 'company.az';
+        $requestUrl = rtrim($request->url(), '/');
+        $defaultAppUrl = preg_replace('#/install(?:/.*)?$#i', '', $requestUrl);
+        if (! is_string($defaultAppUrl) || $defaultAppUrl === '') {
+            $defaultAppUrl = rtrim($request->getSchemeAndHttpHost().$request->getBaseUrl(), '/');
+        }
 
         $defaults = [
             'app_name' => (string) config('app.name', 'ECO DC'),
             'company_name' => (string) config('app.name', 'ECO DC'),
-            'app_url' => rtrim($request->getSchemeAndHttpHost().$request->getBaseUrl(), '/'),
+            'app_url' => $defaultAppUrl,
             'app_locale' => (string) config('app.locale', 'az'),
             'app_timezone' => (string) config('app.timezone', 'Asia/Baku'),
             'allowed_login_domain' => $defaultDomain,
@@ -63,7 +68,12 @@ class SetupWizardController extends Controller
         try {
             $this->setupWizardService->install($request->validated());
         } catch (\Throwable $exception) {
-            report($exception);
+            $this->writeFallbackInstallError($exception);
+            try {
+                report($exception);
+            } catch (\Throwable) {
+                // If logger backend itself fails on shared hosting, keep returning a clean validation error.
+            }
 
             $message = app()->environment('local')
                 ? $exception->getMessage()
@@ -76,5 +86,17 @@ class SetupWizardController extends Controller
 
         return redirect()->route('login')->with('status', __('ui.setup.install_success'));
     }
-}
 
+    private function writeFallbackInstallError(\Throwable $exception): void
+    {
+        $entry = sprintf(
+            "[%s] %s: %s\n%s\n\n",
+            now()->toDateTimeString(),
+            $exception::class,
+            $exception->getMessage(),
+            $exception->getTraceAsString()
+        );
+
+        @file_put_contents(storage_path('logs/setup-wizard-fallback.log'), $entry, FILE_APPEND);
+    }
+}

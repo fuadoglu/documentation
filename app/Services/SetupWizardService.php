@@ -30,7 +30,7 @@ class SetupWizardService
             throw new RuntimeException((string) __('ui.setup.requirements_not_met'));
         }
 
-        $appUrl = (string) $data['app_url'];
+        $appUrl = $this->normalizeAppUrl((string) $data['app_url']);
         $sessionPath = $this->sessionPathFromUrl($appUrl);
         $isSecureUrl = str_starts_with(Str::lower($appUrl), 'https://');
 
@@ -218,6 +218,21 @@ class SetupWizardService
         }
 
         return '/'.trim($trimmed, '/');
+    }
+
+    private function normalizeAppUrl(string $url): string
+    {
+        $trimmed = rtrim(trim($url), '/');
+        if ($trimmed === '') {
+            return $url;
+        }
+
+        $normalized = preg_replace('#/install(?:/.*)?$#i', '', $trimmed);
+        if (! is_string($normalized) || $normalized === '') {
+            return $trimmed;
+        }
+
+        return $normalized;
     }
 
     /**
