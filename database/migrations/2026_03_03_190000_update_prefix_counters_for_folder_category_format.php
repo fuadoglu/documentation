@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    private const CATEGORY_HELPER_INDEX = 'prefix_counters_category_id_index';
+
     public function up(): void
     {
         if (! Schema::hasColumn('prefix_counters', 'folder_id')) {
@@ -18,11 +20,11 @@ return new class extends Migration
             });
         }
 
-        // MySQL can bind FK checks to the old unique index via leftmost prefix.
-        // Ensure a standalone index exists before dropping that unique key.
-        if (! $this->hasLeadingIndexOnCategoryId()) {
+        // MySQL may bind category_id FK to the legacy unique key
+        // (category_id, year). Create a stable standalone index first.
+        if (! $this->hasIndex('prefix_counters', self::CATEGORY_HELPER_INDEX)) {
             Schema::table('prefix_counters', function (Blueprint $table) {
-                $table->index('category_id');
+                $table->index('category_id', self::CATEGORY_HELPER_INDEX);
             });
         }
 
@@ -56,22 +58,16 @@ return new class extends Migration
                 $table->unique(['category_id', 'year']);
             }
         });
+
+        Schema::table('prefix_counters', function (Blueprint $table) {
+            if ($this->hasIndex('prefix_counters', self::CATEGORY_HELPER_INDEX)) {
+                $table->dropIndex(self::CATEGORY_HELPER_INDEX);
+            }
+        });
     }
 
     private function hasIndex(string $table, string $indexName): bool
     {
         return Schema::hasIndex($table, $indexName);
-    }
-
-    private function hasLeadingIndexOnCategoryId(): bool
-    {
-        foreach (Schema::getIndexes('prefix_counters') as $index) {
-            $columns = $index['columns'] ?? [];
-            if (($columns[0] ?? null) === 'category_id') {
-                return true;
-            }
-        }
-
-        return false;
     }
 };
