@@ -21,6 +21,7 @@ class SecurityHeadersTest extends TestCase
             ->assertHeader('Permissions-Policy')
             ->assertHeader('Content-Security-Policy');
 
-        $this->assertStringNotContainsString("'unsafe-inline'", $contentSecurityPolicy);
+        $this->assertStringContainsString("style-src 'self' 'unsafe-inline'", $contentSecurityPolicy);
+        $this->assertStringNotContainsString("script-src 'self' 'unsafe-inline'", $contentSecurityPolicy);
     }
 }
