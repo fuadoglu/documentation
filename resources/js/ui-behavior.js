@@ -166,11 +166,129 @@ const initPrefixPreview = () => {
     updatePreview();
 };
 
+const initLocaleDropdowns = () => {
+    const dropdowns = Array.from(document.querySelectorAll('[data-locale-dropdown]')).map((root) => {
+        if (!(root instanceof HTMLElement)) {
+            return null;
+        }
+
+        const trigger = root.querySelector('[data-locale-trigger]');
+        const panel = root.querySelector('[data-locale-panel]');
+        const chevron = root.querySelector('[data-locale-chevron]');
+
+        if (!(trigger instanceof HTMLButtonElement) || !(panel instanceof HTMLElement)) {
+            return null;
+        }
+
+        const forms = Array.from(root.querySelectorAll('form[data-locale-form]')).filter(
+            (element) => element instanceof HTMLFormElement,
+        );
+
+        return {
+            root,
+            trigger,
+            panel,
+            chevron: chevron instanceof HTMLElement ? chevron : null,
+            forms,
+        };
+    }).filter(Boolean);
+
+    if (dropdowns.length === 0) {
+        return;
+    }
+
+    const close = (dropdown) => {
+        dropdown.panel.classList.add('hidden');
+        dropdown.trigger.setAttribute('aria-expanded', 'false');
+        dropdown.chevron?.classList.remove('rotate-180');
+    };
+
+    const open = (dropdown) => {
+        dropdown.panel.classList.remove('hidden');
+        dropdown.trigger.setAttribute('aria-expanded', 'true');
+        dropdown.chevron?.classList.add('rotate-180');
+    };
+
+    const closeAll = (except = null) => {
+        dropdowns.forEach((dropdown) => {
+            if (except && dropdown.root === except.root) {
+                return;
+            }
+
+            close(dropdown);
+        });
+    };
+
+    dropdowns.forEach((dropdown) => {
+        // Ensure deterministic initial state after page restores from bfcache.
+        close(dropdown);
+
+        dropdown.trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const isOpen = dropdown.trigger.getAttribute('aria-expanded') === 'true';
+            if (isOpen) {
+                close(dropdown);
+                return;
+            }
+
+            closeAll(dropdown);
+            open(dropdown);
+        });
+
+        dropdown.panel.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
+        dropdown.forms.forEach((form) => {
+            form.addEventListener('submit', () => {
+                close(dropdown);
+            });
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Node)) {
+            closeAll();
+            return;
+        }
+
+        const clickedInsideDropdown = dropdowns.some((dropdown) => dropdown.root.contains(target));
+        if (!clickedInsideDropdown) {
+            closeAll();
+        }
+    });
+
+    document.addEventListener('focusin', (event) => {
+        const target = event.target;
+        if (!(target instanceof Node)) {
+            closeAll();
+            return;
+        }
+
+        const focusedInsideDropdown = dropdowns.some((dropdown) => dropdown.root.contains(target));
+        if (!focusedInsideDropdown) {
+            closeAll();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        closeAll();
+    });
+};
+
 const boot = () => {
     initConfirmForms();
     initCopyActions();
     initDropzones();
     initPrefixPreview();
+    initLocaleDropdowns();
 };
 
 if (document.readyState === 'loading') {
